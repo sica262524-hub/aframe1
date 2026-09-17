@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+
+  <!-- A-Frame library -->
+  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+    }
+
+    /* Enter button on the screen */
+    #enterButton {
+      position: fixed;
+      left: 50%;
+      bottom: 80px;
+      transform: translateX(-50%);
+
+      padding: 14px 30px;
+      font-size: 22px;
+
+      background: rgba(0, 0, 0, 0.75);
+      color: white;
+
+      border: 2px solid white;
+      border-radius: 8px;
+
+      cursor: pointer;
+      display: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- This button appears when the player is close to the door -->
+  <button id="enterButton">Enter</button>
+
+  <a-scene>
+
+    <!-- Load the 3D models -->
+    <a-assets>
+
+      <a-asset-item
+        id="hallway"
+        src="hallway.glb">
+      </a-asset-item>
+
+      <a-asset-item
+        id="tree"
+        src="tree.glb">
+      </a-asset-item>
+
+    </a-assets>
+
+
+    <!-- Player and camera -->
+    <a-entity
+      id="player"
+      position="0 0 0">
+
+      <a-camera
+        wasd-controls
+        look-controls
+        position="0 1.6 0">
+      </a-camera>
+
+    </a-entity>
+
+
+    <!-- Hallway model -->
+    <a-entity
+      gltf-model="#hallway"
+      position="0 0 0"
+      rotation="0 0 0">
+    </a-entity>
+
+
+    <!-- Room model -->
+    <!-- I put it far away so it does not overlap with the hallway -->
+    <a-entity
+      gltf-model="#tree"
+      position="0 0 -30"
+      rotation="0 0 0">
+    </a-entity>
+
+
+    <!-- Invisible area near the door -->
+    <!-- When the player gets close to this box, the Enter button appears -->
+    <a-box
+      id="doorTrigger"
+      position="0 1 -5"
+      width="2"
+      height="3"
+      depth="1"
+      material="opacity: 0; transparent: true;">
+    </a-box>
+
+  </a-scene>
+
+
+  <script>
+
+    // Get the player, door area, and button
+    const player = document.querySelector("#player");
+    const door = document.querySelector("#doorTrigger");
+    const button = document.querySelector("#enterButton");
+
+    // Store the positions
+    const playerPosition = new THREE.Vector3();
+    const doorPosition = new THREE.Vector3();
+
+
+    // Check how close the player is to the door
+    function checkDistance() {
+
+      player.object3D.getWorldPosition(playerPosition);
+      door.object3D.getWorldPosition(doorPosition);
+
+      const distance =
+        playerPosition.distanceTo(doorPosition);
+
+
+      // Show the button when the player is close enough
+      if (distance < 2.5) {
+
+        button.style.display = "block";
+
+      } else {
+
+        button.style.display = "none";
+
+      }
+
+    }
+
+
+    // Keep checking the distance
+    setInterval(checkDistance, 100);
+
+
+    // Move the player to the room after clicking Enter
+    button.addEventListener("click", function () {
+
+      player.setAttribute(
+        "position",
+        "0 0 -28"
+      );
+
+      // Hide the button again
+      button.style.display = "none";
+
+    });
+
+  </script>
+
+</body>
+</html>
